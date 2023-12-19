@@ -24,8 +24,6 @@ def calculate_xy_average(x_i, y_i, n_i, n_j, n_ij):
 
 # если считаем верхнюю границу, то знак ПЛЮС, если нижнюю, то МИНУС (+1, -1)
 def beta_borders(b, t, sample_variance_y_pow2_s, sample_variance_x_pow2, r, n, sign=1):
-    # beta_yx_1 = b_yx - t * ((pow(sample_variance_y_pow2_s, 1 / 2) * pow(1 - pow(r, 2), 1 / 2)) / (
-    #             pow(sample_variance_x_pow2_s, 1 / 2) * pow(n - 2, 1 / 2)))
     numerator = pow(sample_variance_y_pow2_s, 1 / 2) * pow(1 - pow(r, 2), 1 / 2)
     denominator = pow(sample_variance_x_pow2, 1 / 2) * pow(n - 2, 1 / 2)
 
@@ -96,7 +94,7 @@ def fullRegressionProblem(x_i, y_i, n_ij):
     z = (1 / 2) * (math.log(abs((1 + r) / (1 - r)), math.exp(1)))  # z-преобразование
     print('z: ', z, '\n')
 
-    # selective_correlation_moment_m будет в следующих границ
+    # selective_correlation_moment_m будет в следующих границах
     mathematical_expectation_m_down = z - t / (pow(n - 3, 1 / 2))  # Мат. ожидание (нижняя граница)
     mathematical_expectation_m_up = z + t / (pow(n - 3, 1 / 2))  # Мат. ожидание (верхняя граница)
     print('mathematical_expectation_m_down :', mathematical_expectation_m_down,
@@ -191,7 +189,7 @@ def fullRegressionProblem(x_i, y_i, n_ij):
     if (0 < r < Ryx < nyx < 1):
         print('Hell yeah')
     else:
-        print('(')
+        print(':(')
 
 
 fullRegressionProblem([2.25, 6.75, 11.25, 15.75, 20.25], [0.7, 2.1, 3.5, 4.9, 6.3, 7.7],
