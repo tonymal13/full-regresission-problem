@@ -22,68 +22,78 @@ def calculate_xy_average(x_i, y_i, n_i, n_j, n_ij):
     return xy_average
 
 
-def fullRegressionProblem(x_i, y_i, n_ij):
-    n_j = [5, 6, 11, 25, 9, 4]
-    n_i = [10, 12, 24, 8, 6]
-    n = 60
+# если считаем верхнюю границу, то знак ПЛЮС, если нижнюю, то МИНУС (+1, -1)
+def beta_borders(b, t, sample_variance_y_pow2_s, sample_variance_x_pow2, r, n, sign=1):
+    # beta_yx_1 = b_yx - t * ((pow(sample_variance_y_pow2_s, 1 / 2) * pow(1 - pow(r, 2), 1 / 2)) / (
+    #             pow(sample_variance_x_pow2_s, 1 / 2) * pow(n - 2, 1 / 2)))
+    numerator = pow(sample_variance_y_pow2_s, 1 / 2) * pow(1 - pow(r, 2), 1 / 2)
+    denominator = pow(sample_variance_x_pow2, 1 / 2) * pow(n - 2, 1 / 2)
 
-    # print('n_i :',n_i)
-    # print('n_j :',n_j)
+    return b + sign * t * (numerator / denominator)
+
+
+def fullRegressionProblem(x_i, y_i, n_ij):
+    n_i_sum = [10, 12, 24, 8, 6]
+    n_j_sum = [5, 6, 11, 25, 9, 4]
+    n = 60  # измерять из входных данных
+
+    # print('n_i_sum :',n_i_sum)
+    # print('n_j_sum :',n_j_sum)
     # print(n)
 
     m = len(n_ij[0])  # длина столбца
 
-    x_average = calculate_var_average(x_i, n_i) / n  # X с чертой X среднее
-    y_average = calculate_var_average(y_i, n_j) / n  # Y с чертой Y среднее
+    x_average = calculate_var_average(x_i, n_i_sum) / n  # X с чертой X среднее
+    y_average = calculate_var_average(y_i, n_j_sum) / n  # Y с чертой Y среднее
 
     print('X average:', x_average)
     print('Y average:', y_average)
 
-    xy_average = calculate_xy_average(x_i, y_i, n_i, n_j, n_ij) / n # ХУ с чертой ХУ среднее
+    xy_average = calculate_xy_average(x_i, y_i, n_i_sum, n_j_sum, n_ij) / n  # ХУ с чертой ХУ среднее
     print('xy_average:', xy_average)
 
-    x_pow2_average = calculate_var_average(x_i, n_i, 2) / n  # Y2 с чертой Y в квадрате среднее
-    y_pow2_average = calculate_var_average(y_i, n_j, 2) / n  # X2 с чертой X в квадрате среднее
+    x_pow2_average = calculate_var_average(x_i, n_i_sum, 2) / n  # Y2 с чертой Y в квадрате среднее
+    y_pow2_average = calculate_var_average(y_i, n_j_sum, 2) / n  # X2 с чертой X в квадрате среднее
 
-    print('y_pow2_average: ', y_pow2_average, '\n', 'x_pow2_average: ', x_pow2_average)
+    print('y_pow2_average: ', y_pow2_average, ' ', 'x_pow2_average: ', x_pow2_average)
 
     selective_correlation_moment_m = xy_average - x_average * y_average  # выборочный корреляционный момент (ковариация)
     print('selective_correlation_moment_m :', selective_correlation_moment_m)
 
-    sample_variance_x_pow2 = x_pow2_average - pow(x_average, 2)  # sample_variance_x_pow2 выборочная дисперсия
-    sample_variance_y_pow2 = y_pow2_average - pow(y_average, 2)  # sample_variance_y_pow2 выборочная дисперсия
-    print('sample_variance_x_pow2 :', sample_variance_x_pow2, '\n', 'sample_variance_y_pow2 :', sample_variance_y_pow2)
+    sample_variance_x_pow2_s = x_pow2_average - pow(x_average, 2)  # sample_variance_x_pow2_s выборочная дисперсия
+    sample_variance_y_pow2_s = y_pow2_average - pow(y_average, 2)  # sample_variance_y_pow2_s выборочная дисперсия
+    print('sample_variance_x_pow2_s :', sample_variance_x_pow2_s, ' ', 'sample_variance_y_pow2_s :', sample_variance_y_pow2_s)
 
-    byx = selective_correlation_moment_m / sample_variance_x_pow2  # byx - коэффициент линейной регрессии y по х
-    bxy = selective_correlation_moment_m / sample_variance_y_pow2  # bxy - коэффициент линейной регрессии x по y
-    print('byx :', byx, '\n', 'bxy :', bxy)
+    b_yx = selective_correlation_moment_m / sample_variance_x_pow2_s  # b_yx - коэффициент линейной регрессии y по х
+    b_xy = selective_correlation_moment_m / sample_variance_y_pow2_s  # b_xy - коэффициент линейной регрессии x по y
+    print('b_yx :', b_yx, ' ', 'b_xy :', b_xy)
 
     # Yx=Y_avg+Byx(X-X_avg)
     # Xy=X_avg+Bxy(Y-Y_avg)
 
-    # r=(xy_average-X_avg*Y_avg)/(pow(sample_variance_x_pow2,1/2)*pow(sample_variance_y_pow2,1/2))# Коэффициент корреляции
+    # r=(xy_average-X_avg*Y_avg)/(pow(sample_variance_x_pow2_s,1/2)*pow(sample_variance_y_pow2_s,1/2))# Коэффициент корреляции
 
-    r = pow(abs(bxy * byx), 1 / 2)  # Коэффициент корреляции другая формула
+    r = pow(abs(b_xy * b_yx), 1 / 2)  # Коэффициент корреляции другая формула
     # Заметная корреляция -0.65, Умеренная - 0.4, слабая -0.2
     print('r :', r)
 
     # Определяем t(1-alpha;n-2) по таблице t=2.01 для P=0.95 и n = 50
     t = 2.01
 
-    # beta yx будет в следующих границах
-    beta_yx_1 = byx - t * ((pow(sample_variance_y_pow2, 1 / 2) * pow(1 - pow(r, 2), 1 / 2)) / (pow(sample_variance_x_pow2, 1 / 2) * pow(n - 2, 1 / 2)))
-    beta_yx_2 = byx + t * ((pow(sample_variance_y_pow2, 1 / 2) * pow(1 - pow(r, 2), 1 / 2)) / (pow(sample_variance_x_pow2, 1 / 2) * pow(n - 2, 1 / 2)))
-    # beta_yx_1 <beta yx<beta_yx_2
-    print('beta_yx_1 :', beta_yx_1, 'beta_yx_2 :', beta_yx_2)
+    # beta_yx будет в следующих границах
+    beta_yx_down = beta_borders(b_yx, t, sample_variance_y_pow2_s, sample_variance_x_pow2_s, r, n, -1)
+    beta_yx_up = beta_borders(b_yx, t, sample_variance_y_pow2_s, sample_variance_x_pow2_s, r, n)
+    # beta_yx_down < beta_yx < beta_yx_up
+    print('beta_yx_down :', beta_yx_down, 'beta_yx_up :', beta_yx_up)
 
-    # beta xy будет в следующих границах
-    beta_xy1 = bxy - t * ((pow(sample_variance_x_pow2, 1 / 2) * pow(1 - pow(r, 2), 1 / 2)) / (pow(sample_variance_y_pow2, 1 / 2) * pow(n - 2, 1 / 2)))
-    beta_xy_2 = bxy + t * ((pow(sample_variance_x_pow2, 1 / 2) * pow(1 - pow(r, 2), 1 / 2)) / (pow(sample_variance_y_pow2, 1 / 2) * pow(n - 2, 1 / 2)))
-    # beta_xy_1 <beta xy<beta_xy_2
-    print('beta_xy_1 :', beta_xy1, 'beta_xy_2 :', beta_xy_2)
+    # beta_xy будет в следующих границах
+    beta_xy_down = beta_borders(b_xy, t, sample_variance_x_pow2_s, sample_variance_y_pow2_s, r, n, -1)
+    beta_xy_up = beta_borders(b_xy, t, sample_variance_x_pow2_s, sample_variance_y_pow2_s, r, n)
+    # beta_xy_down < beta_xy < beta_xy_up
+    print('beta_xy_down :', beta_xy_down, 'beta_xy_up :', beta_xy_up)
 
     z = (1 / 2) * (math.log(abs((1 + r) / (1 - r)), math.exp(1)))  # z-преобразование
-    print('z :', z)
+    print('z: ', z)
 
     # selective_correlation_moment_m будет в следующих границ
     M_1 = z - t / (pow(n - 3, 1 / 2))  # Мат. ожидание (нижняя граница)
@@ -101,21 +111,21 @@ def fullRegressionProblem(x_i, y_i, n_ij):
     Yi_avg = []  # Yi с чертой групповое среднее
     Xi_avg = []  # Xi с чертой групповое среднее
 
-    for i in range(len(n_j)):
+    for i in range(len(n_j_sum)):
         Xi_avg.append(0)
-        for j in range(len(n_i)):
+        for j in range(len(n_i_sum)):
             Xi_avg[i] += x_i[j] * n_ij[j][i]
             # print('X' + str(i+1) + ':', Xi[j], nij[j][i])
-        Xi_avg[i] = Xi_avg[i] / n_j[i]
-        # print('n_j',n_j[i])
+        Xi_avg[i] = Xi_avg[i] / n_j_sum[i]
+        # print('n_j_sum',n_j_sum[i])
 
     print('Xi_avg :', Xi_avg)
-    for i in range(len(n_i)):
+    for i in range(len(n_i_sum)):
         Yi_avg.append(0)
-        for j in range(len(n_j)):
+        for j in range(len(n_j_sum)):
             # print('Y' + str(i+1) + ':', Yi[j], nij[i][j])
             Yi_avg[i] += y_i[j] * n_ij[i][j]
-        Yi_avg[i] = Yi_avg[i] / n_i[i]
+        Yi_avg[i] = Yi_avg[i] / n_i_sum[i]
 
     print('Yi_avg :', Yi_avg)
 
@@ -125,46 +135,46 @@ def fullRegressionProblem(x_i, y_i, n_ij):
     б2_iy = 0  # Не знаю название переменной, напиши если знаешь)
     б2_ix = 0  # Не знаю название переменной, напиши если знаешь)
 
-    for i in range(len(n_j)):
-        б2_ix += pow((Xi_avg[i] - x_average), 2) * n_j[i]
-        # print(Xi_avg[i],n_j[i])
-    for i in range(len(n_i)):
-        # print(Yi_avg[i], n_i[i])
-        б2_iy += pow((Yi_avg[i] - y_average), 2) * n_i[i]
+    for i in range(len(n_j_sum)):
+        б2_ix += pow((Xi_avg[i] - x_average), 2) * n_j_sum[i]
+        # print(Xi_avg[i],n_j_sum[i])
+    for i in range(len(n_i_sum)):
+        # print(Yi_avg[i], n_i_sum[i])
+        б2_iy += pow((Yi_avg[i] - y_average), 2) * n_i_sum[i]
 
     б2_iy = б2_iy / n
     б2_ix = б2_ix / n
     print('б2_iy', б2_iy, 'б2_ix', б2_ix)
 
-    nyx = pow(б2_iy / sample_variance_y_pow2, 1 / 2)  # Корреляционное отношение y по x
-    nxy = pow(б2_ix / sample_variance_x_pow2, 1 / 2)  # Корреляционное отношение x по y
+    nyx = pow(б2_iy / sample_variance_y_pow2_s, 1 / 2)  # Корреляционное отношение y по x
+    nxy = pow(б2_ix / sample_variance_x_pow2_s, 1 / 2)  # Корреляционное отношение x по y
     print('nyx :', nyx, 'nxy :', nxy)
 
     Yxi = []  # Не знаю название переменной, напиши если знаешь)
     Xyj = []  # Не знаю название переменной, напиши если знаешь)
-    for i in range(len(n_i)):
+    for i in range(len(n_i_sum)):
         Yxi.append(0)
-        Yxi[i] += y_average + byx * (x_i[i] - x_average)
-    for j in range(len(n_j)):
+        Yxi[i] += y_average + b_yx * (x_i[i] - x_average)
+    for j in range(len(n_j_sum)):
         Xyj.append(0)
-        Xyj[j] += x_average + bxy * (y_i[j] - y_average)
-    print('Yxi :', Yxi, 'Xyi :', Xyj)
+        Xyj[j] += x_average + b_xy * (y_i[j] - y_average)
+    print('Yxi :', Yxi, 'Xyi :', Xyj)  # проверить, нет ли ошибки, сравнить с заданными x y
 
     б2_x = 0  # Не знаю название переменной, напиши если знаешь)
     б2_y = 0  # Не знаю название переменной, напиши если знаешь)
 
     for i in range(len(Xyj)):
-        б2_x += pow(Xyj[i] - x_average, 2) * n_j[i]
-        print(Xyj[i], n_j[i])
+        б2_x += pow(Xyj[i] - x_average, 2) * n_j_sum[i]
+        print(Xyj[i], n_j_sum[i])
     for j in range(len(Yxi)):
-        б2_y += pow(Yxi[j] - y_average, 2) * n_i[j]
+        б2_y += pow(Yxi[j] - y_average, 2) * n_i_sum[j]
     б2_x = б2_x / n
     б2_y = б2_y / n
     print('б2_x :', б2_x, 'б2_y :', б2_y)
 
     # Rxy - множественный коэффициент корелляционного значения
-    Ryx = pow(б2_y / sample_variance_y_pow2, 1 / 2)  # Не знаю название переменной, напиши если знаешь)
-    Rxy = pow(б2_x / sample_variance_x_pow2, 1 / 2)  # Не знаю название переменной, напиши если знаешь)
+    Ryx = pow(б2_y / sample_variance_y_pow2_s, 1 / 2)  # Не знаю название переменной, напиши если знаешь)
+    Rxy = pow(б2_x / sample_variance_x_pow2_s, 1 / 2)  # Не знаю название переменной, напиши если знаешь)
     print('Ryx :', Ryx, 'Rxy :', Rxy)
 
     Fyx = (pow(nyx, 2) * (n - m)) / ((1 - pow(nyx, 2)) * (m - 1))  # Уровень значимости
