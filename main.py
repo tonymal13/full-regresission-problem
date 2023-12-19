@@ -5,6 +5,7 @@ def fullRegressionProblem(Xi,Yi,nij):
     ni=[10,12,24,8,6]
     n=60
 
+    # test changes
     # print('ni :',ni)
     # print('nj :',nj)
     # print(n)
