@@ -47,26 +47,27 @@ def fullRegressionProblem(x_i, y_i, n_ij):
     y_average = calculate_var_average(y_i, n_j_sum) / n  # Y с чертой Y среднее
 
     print('X average:', x_average)
-    print('Y average:', y_average)
+    print('Y average:', y_average, '\n')
 
     xy_average = calculate_xy_average(x_i, y_i, n_i_sum, n_j_sum, n_ij) / n  # ХУ с чертой ХУ среднее
-    print('xy_average:', xy_average)
+    print('XY_average:', xy_average, '\n')
 
     x_pow2_average = calculate_var_average(x_i, n_i_sum, 2) / n  # Y2 с чертой Y в квадрате среднее
     y_pow2_average = calculate_var_average(y_i, n_j_sum, 2) / n  # X2 с чертой X в квадрате среднее
 
-    print('y_pow2_average: ', y_pow2_average, ' ', 'x_pow2_average: ', x_pow2_average)
+    print('Y^2_average: ', y_pow2_average, '\t', 'X^2_average: ', x_pow2_average, '\n')
 
     selective_correlation_moment_m = xy_average - x_average * y_average  # выборочный корреляционный момент (ковариация)
-    print('selective_correlation_moment_m :', selective_correlation_moment_m)
+    print('Selective_correlation_moment (M): ', selective_correlation_moment_m, '\n')
 
     sample_variance_x_pow2_s = x_pow2_average - pow(x_average, 2)  # sample_variance_x_pow2_s выборочная дисперсия
     sample_variance_y_pow2_s = y_pow2_average - pow(y_average, 2)  # sample_variance_y_pow2_s выборочная дисперсия
-    print('sample_variance_x_pow2_s :', sample_variance_x_pow2_s, ' ', 'sample_variance_y_pow2_s :', sample_variance_y_pow2_s)
+    print('Sample_variance_x_pow2 (S^2_x): ', sample_variance_x_pow2_s, '\t', 'Sample_variance_y_pow2 (S^2_Y): ',
+          sample_variance_y_pow2_s, '\n')
 
     b_yx = selective_correlation_moment_m / sample_variance_x_pow2_s  # b_yx - коэффициент линейной регрессии y по х
     b_xy = selective_correlation_moment_m / sample_variance_y_pow2_s  # b_xy - коэффициент линейной регрессии x по y
-    print('b_yx :', b_yx, ' ', 'b_xy :', b_xy)
+    print('b_yx :', b_yx, '\t', 'b_xy :', b_xy, '\n')
 
     # Yx=Y_avg+Byx(X-X_avg)
     # Xy=X_avg+Bxy(Y-Y_avg)
@@ -75,7 +76,7 @@ def fullRegressionProblem(x_i, y_i, n_ij):
 
     r = pow(abs(b_xy * b_yx), 1 / 2)  # Коэффициент корреляции другая формула
     # Заметная корреляция -0.65, Умеренная - 0.4, слабая -0.2
-    print('r :', r)
+    print('r: ', r, '\n')
 
     # Определяем t(1-alpha;n-2) по таблице t=2.01 для P=0.95 и n = 50
     t = 2.01
@@ -84,28 +85,32 @@ def fullRegressionProblem(x_i, y_i, n_ij):
     beta_yx_down = beta_borders(b_yx, t, sample_variance_y_pow2_s, sample_variance_x_pow2_s, r, n, -1)
     beta_yx_up = beta_borders(b_yx, t, sample_variance_y_pow2_s, sample_variance_x_pow2_s, r, n)
     # beta_yx_down < beta_yx < beta_yx_up
-    print('beta_yx_down :', beta_yx_down, 'beta_yx_up :', beta_yx_up)
+    print('beta_yx_down: ', beta_yx_down, '\t', 'beta_yx_up: ', beta_yx_up, '\n')
 
     # beta_xy будет в следующих границах
     beta_xy_down = beta_borders(b_xy, t, sample_variance_x_pow2_s, sample_variance_y_pow2_s, r, n, -1)
     beta_xy_up = beta_borders(b_xy, t, sample_variance_x_pow2_s, sample_variance_y_pow2_s, r, n)
     # beta_xy_down < beta_xy < beta_xy_up
-    print('beta_xy_down :', beta_xy_down, 'beta_xy_up :', beta_xy_up)
+    print('beta_xy_down :', beta_xy_down, '\t', 'beta_xy_up :', beta_xy_up, '\n')
 
     z = (1 / 2) * (math.log(abs((1 + r) / (1 - r)), math.exp(1)))  # z-преобразование
-    print('z: ', z)
+    print('z: ', z, '\n')
 
     # selective_correlation_moment_m будет в следующих границ
-    M_1 = z - t / (pow(n - 3, 1 / 2))  # Мат. ожидание (нижняя граница)
-    M_2 = z + t / (pow(n - 3, 1 / 2))  # Мат. ожидание
-    print('M_1 :', M_1, 'M_2 :', M_2)
+    mathematical_expectation_m_down = z - t / (pow(n - 3, 1 / 2))  # Мат. ожидание (нижняя граница)
+    mathematical_expectation_m_up = z + t / (pow(n - 3, 1 / 2))  # Мат. ожидание (верхняя граница)
+    print('mathematical_expectation_m_down :', mathematical_expectation_m_down,
+          '\t',
+          'mathematical_expectation_m_up :', mathematical_expectation_m_up, '\n'
+          )
 
     # p будет в следующих границ
-
-    p_1 = (math.exp(M_1) - math.exp(-M_1)) / (
-            math.exp(M_1) + math.exp(-M_1))  # Генеральный коэффициент корреляции(нижняя граница)
-    p_2 = (math.exp(M_2) - math.exp(-M_2)) / (
-            math.exp(M_2) + math.exp(-M_2))  # Генеральный коэффициент корреляции(верхняя граница)
+    p_1 = (math.exp(mathematical_expectation_m_down) - math.exp(-mathematical_expectation_m_down)) / (
+            math.exp(mathematical_expectation_m_down) + math.exp(
+        -mathematical_expectation_m_down))  # Генеральный коэффициент корреляции(нижняя граница)
+    p_2 = (math.exp(mathematical_expectation_m_up) - math.exp(-mathematical_expectation_m_up)) / (
+            math.exp(mathematical_expectation_m_up) + math.exp(
+        -mathematical_expectation_m_up))  # Генеральный коэффициент корреляции(верхняя граница)
     print('p_1 :', p_1, 'p_2 :', p_2)
 
     Yi_avg = []  # Yi с чертой групповое среднее
